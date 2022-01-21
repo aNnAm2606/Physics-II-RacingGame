@@ -99,6 +99,15 @@ bool ModulePlayer::Start()
 	vehicle = App->physics->AddVehicle(car);
 	vehicle->SetPos(0, 12, 10);
 	
+	// ZOOM
+	minZoom = { 5, -5 };
+	maxZoom = { 25, -25 };
+
+	zoom = maxZoom;
+
+	zoomRatio = 0.0f;
+	zoomSpeed = 0.05f;
+
 	return true;
 }
 
@@ -113,26 +122,32 @@ bool ModulePlayer::CleanUp()
 // Update: draw background
 update_status ModulePlayer::Update(float dt)
 {
+	// Vehicle control
 	turn = acceleration = brake = 0.0f;
 
-	if(App->input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT)
+	if(App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
 	{
 		acceleration = MAX_ACCELERATION;
 	}
 
-	if(App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
+	if(App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
 	{
 		if(turn < TURN_DEGREES)
 			turn +=  TURN_DEGREES;
 	}
 
-	if(App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
+	if(App->input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT)
 	{
 		if(turn > -TURN_DEGREES)
 			turn -= TURN_DEGREES;
 	}
 
-	if(App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
+	if (App->input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT)
+	{
+		acceleration = -MAX_ACCELERATION;
+	}
+
+	if(App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_REPEAT)
 	{
 		brake = BRAKE_POWER;
 	}
@@ -143,6 +158,21 @@ update_status ModulePlayer::Update(float dt)
 
 	vehicle->Render();
 
+	//-- Camera control --
+	//Zoom
+	zoomRatio -= App->input->GetMouseZ() * zoomSpeed;
+	CAP(zoomRatio);
+
+	zoom = { LERP(minZoom.x, maxZoom.x, zoomRatio), LERP(minZoom.y, maxZoom.y, zoomRatio) };
+
+	//Reposition
+	vec3 carpos = vehicle->GetPosition();
+
+	vec3 campos = carpos + vec3(0, zoom.x, zoom.y);
+
+	App->camera->Look(campos, carpos);
+
+	// Set title
 	char title[80];
 	sprintf_s(title, "%.1f Km/h", vehicle->GetKmh());
 	App->window->SetTitle(title);
