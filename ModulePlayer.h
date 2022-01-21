@@ -19,6 +19,11 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
+	vec2 minZoom, maxZoom;
+	vec2 zoom;
+
+	float zoomRatio;
+	float zoomSpeed;
 public:
 
 	PhysVehicle3D* vehicle;
