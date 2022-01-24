@@ -19,6 +19,13 @@ struct Color
 		this->a = a;
 	}
 
+	void Set255(int r, int g, int b, int a = 255) {
+		this->r = r / 255.0f;
+		this->g = g / 255.0f;
+		this->b = b / 255.0f;
+		this->a = a / 255.0f;
+	}
+
 	float* operator & ()
 	{
 		return (float*)this;

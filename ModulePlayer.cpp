@@ -122,6 +122,8 @@ bool ModulePlayer::CleanUp()
 // Update: draw background
 update_status ModulePlayer::Update(float dt)
 {
+	if (App->IsDebug()) return UPDATE_CONTINUE;
+
 	// Vehicle control
 	turn = acceleration = brake = 0.0f;
 

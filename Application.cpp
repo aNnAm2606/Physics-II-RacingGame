@@ -28,6 +28,8 @@ Application::Application()
 
 	// Renderer last!
 	AddModule(renderer3D);
+
+	debug = false;
 }
 
 Application::~Application()
@@ -73,6 +75,10 @@ void Application::PrepareUpdate()
 {
 	dt = (float)ms_timer.Read() / 1000.0f;
 	ms_timer.Start();
+
+	if (input->GetKey(SDL_SCANCODE_F1) == KEY_DOWN) {
+		debug = !debug;
+	}
 }
 
 // ---------------------------------------------

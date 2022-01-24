@@ -24,13 +24,13 @@ public:
 	ModuleCamera3D* camera;
 	ModulePhysics3D* physics;
 	ModulePlayer* player;
-
 private:
 
 	Timer	ms_timer;
 	float	dt;
 	p2List<Module*> list_modules;
 
+	bool debug;
 public:
 
 	Application();
@@ -40,6 +40,7 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+	bool IsDebug() const { return debug; }
 private:
 
 	void AddModule(Module* mod);
