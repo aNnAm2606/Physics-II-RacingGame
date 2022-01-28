@@ -45,8 +45,13 @@ public:
 
 	p2DynArray<Cube*> map_track;
 private:
+	void CreateMap();
+	void CreateObstacles();
 	void CreateTrack();
 	void AddTrack(vec3 position, vec3 size, float angle = 0.0f, vec3 axis = {0.0f,1.0f,0.0f});
+	void AddObstacle(vec3 position, vec3 size, float angle = 0.0f, vec3 axis = { 0.0f,1.0f,0.0f });
+
+	void TrackEditor();
 
 	vec3 p;
 	vec3 s;

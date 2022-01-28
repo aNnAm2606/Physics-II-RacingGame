@@ -5,7 +5,6 @@
 #include "Primitive.h"
 
 #include "Bullet/include/btBulletDynamicsCommon.h"
-#include "Bullet/include/BulletCollision/CollisionDispatch/btGhostObject.h"
 
 // Recommended scale is 1.0f == 1 meter, no less than 0.2 objects
 #define GRAVITY btVector3(0.0f, -10.0f, 0.0f) 
@@ -50,7 +49,6 @@ private:
 	p2List<btDefaultMotionState*> motions;
 	p2List<btTypedConstraint*> constraints;
 	p2List<PhysVehicle3D*> vehicles;
-	p2List<btGhostObject*> sensors;
 };
 
 class DebugDrawer : public btIDebugDraw

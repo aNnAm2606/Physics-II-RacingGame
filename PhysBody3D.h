@@ -17,7 +17,8 @@ public:
 	enum class Type {
 		CAR,
 		TRACK,
-		GRASS
+		GRASS,
+		OBSTACLE
 	};
 
 	PhysBody3D(btRigidBody* body);
@@ -41,7 +42,6 @@ public:
 	void ResetRotation();
 private:
 	btRigidBody* body = nullptr;
-	bool is_sensor = false;
 public:
 	p2List<Module*> collision_listeners;
 	Type type;

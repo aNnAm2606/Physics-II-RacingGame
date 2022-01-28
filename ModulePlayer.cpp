@@ -18,6 +18,8 @@ bool ModulePlayer::Start()
 {
 	LOG("Loading player");
 
+	frictionCoefficient = 0.99f;
+
 	VehicleInfo car;
 
 	// Car properties ----------------------------------------
@@ -137,8 +139,9 @@ void ModulePlayer::OnCollision(PhysBody3D* body1, PhysBody3D* body2)
 			lastRot = body2->GetRotation();
 
 			if (body2->type == PhysBody3D::Type::GRASS) {
-				printf("GRASS\n");
-				vehicle->SetLinearFactor(0.1f, 0.1f, 0.1f);
+				btVector3 v = vehicle->GetVelocity();
+				v.setValue(v.x() * frictionCoefficient, v.y() * frictionCoefficient, v.z() * frictionCoefficient);
+				vehicle->SetVelocity(v);
 			}
 		}
 	}
@@ -209,12 +212,12 @@ update_status ModulePlayer::Update(float dt)
 	//-- Bounds follow
 	bounds->SetPos(carpos.x, carpos.y, carpos.z);
 
-	vehicle->SetLinearFactor(1.0f, 1.0f, 1.0f);
-
 	// Set title
 	char title[80];
 	sprintf_s(title, "%.1f Km/h", vehicle->GetKmh());
 	App->window->SetTitle(title);
+
+	printf("lastpos(%.2f,%.2f,%.2f)\n", lastPos.x, lastPos.y, lastPos.z);
 
 	return UPDATE_CONTINUE;
 }
