@@ -5,6 +5,7 @@
 #include "Primitive.h"
 
 #include "Bullet/include/btBulletDynamicsCommon.h"
+#include "Bullet/include/BulletCollision/CollisionDispatch/btGhostObject.h"
 
 // Recommended scale is 1.0f == 1 meter, no less than 0.2 objects
 #define GRAVITY btVector3(0.0f, -10.0f, 0.0f) 
@@ -28,7 +29,7 @@ public:
 	bool CleanUp();
 
 	PhysBody3D* AddBody(const Sphere& sphere, float mass = 1.0f);
-	PhysBody3D* AddBody(const Cube& cube, float mass = 1.0f);
+	PhysBody3D* AddBody(const Cube& cube, float mass = 1.0f, bool sensor=false);
 	PhysBody3D* AddBody(const Cylinder& cylinder, float mass = 1.0f);
 	PhysVehicle3D* AddVehicle(const VehicleInfo& info);
 
@@ -49,6 +50,7 @@ private:
 	p2List<btDefaultMotionState*> motions;
 	p2List<btTypedConstraint*> constraints;
 	p2List<PhysVehicle3D*> vehicles;
+	p2List<btGhostObject*> sensors;
 };
 
 class DebugDrawer : public btIDebugDraw

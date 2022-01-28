@@ -4,6 +4,7 @@
 #include "p2Point.h"
 
 struct PhysVehicle3D;
+class btQuaternion;
 
 #define MAX_ACCELERATION 1000.0f
 #define TURN_DEGREES 15.0f * DEGTORAD
@@ -19,14 +20,19 @@ public:
 	update_status Update(float dt);
 	bool CleanUp();
 
+	void OnCollision(PhysBody3D* body1, PhysBody3D* body2);
+
 	vec2 minZoom, maxZoom;
 	vec2 zoom;
 
 	float zoomRatio;
 	float zoomSpeed;
 public:
+	vec3 lastPos;
+	btQuaternion lastRot;
 
 	PhysVehicle3D* vehicle;
+	PhysBody3D* bounds;
 	float turn;
 	float acceleration;
 	float brake;

@@ -98,7 +98,14 @@ bool ModulePlayer::Start()
 
 	vehicle = App->physics->AddVehicle(car);
 	vehicle->SetPos(0, 12, 10);
-	
+	vehicle->type = PhysBody3D::Type::CAR;
+
+	Cube* c = new Cube(2, 1, 4);
+	bounds = App->physics->AddBody(*c, 1.0f, true);
+	bounds->SetVelocity(btVector3(0, -250, 0));
+	bounds->type = PhysBody3D::Type::CAR;
+	bounds->collision_listeners.add(this);
+
 	// ZOOM
 	minZoom = { 5, -5 };
 	maxZoom = { 25, -25 };
@@ -117,6 +124,24 @@ bool ModulePlayer::CleanUp()
 	LOG("Unloading player");
 
 	return true;
+}
+
+void ModulePlayer::OnCollision(PhysBody3D* body1, PhysBody3D* body2)
+{
+	if (body1->type == PhysBody3D::Type::CAR) {
+		if (body2->type != PhysBody3D::Type::CAR) {
+			vec3 b2p;
+			body2->GetPos(&b2p.x, &b2p.y, &b2p.z);
+
+			lastPos = b2p;
+			lastRot = body2->GetRotation();
+
+			if (body2->type == PhysBody3D::Type::GRASS) {
+				printf("GRASS\n");
+				vehicle->SetLinearFactor(0.1f, 0.1f, 0.1f);
+			}
+		}
+	}
 }
 
 // Update: draw background
@@ -174,6 +199,18 @@ update_status ModulePlayer::Update(float dt)
 
 	App->camera->Look(campos, carpos);
 
+	//-- Track control
+	if (carpos.y <= -10.0f) {
+		vehicle->SetPos(lastPos.x, 3.0f, lastPos.z);
+		vehicle->SetRotation(lastRot);
+		vehicle->ResetVelocity();
+	}
+
+	//-- Bounds follow
+	bounds->SetPos(carpos.x, carpos.y, carpos.z);
+
+	vehicle->SetLinearFactor(1.0f, 1.0f, 1.0f);
+
 	// Set title
 	char title[80];
 	sprintf_s(title, "%.1f Km/h", vehicle->GetKmh());
@@ -181,6 +218,3 @@ update_status ModulePlayer::Update(float dt)
 
 	return UPDATE_CONTINUE;
 }
-
-
-

@@ -54,3 +54,58 @@ void PhysBody3D::GetPos(float* x, float* y, float* z) const
 	*y = v.y();
 	*z = v.z();
 }
+
+btQuaternion PhysBody3D::GetRotation() const
+{
+	return body->getWorldTransform().getRotation();
+}
+
+void PhysBody3D::SetRotation(btQuaternion& quat)
+{
+	btTransform t = body->getWorldTransform();
+	t.setRotation(quat);
+	body->setWorldTransform(t);
+}
+
+void PhysBody3D::SetVelocity(btVector3& v)
+{
+	body->setLinearVelocity(v);
+}
+
+btVector3 PhysBody3D::GetVelocity() const
+{
+	return body->getLinearVelocity();
+}
+
+void PhysBody3D::SetLinearFactor(float x, float y, float z)
+{
+	body->setLinearFactor(btVector3(x, y, z));
+}
+
+void PhysBody3D::ClampVelocity(float minv, float maxv)
+{
+	btVector3 v = body->getLinearVelocity();
+
+	int x = v.x(), y = v.y(), z = v.z();
+
+	CLAMP(x, minv, maxv);
+	CLAMP(y, minv, maxv);
+	CLAMP(z, minv, maxv);
+
+	v.setValue(x, y, z);
+
+	body->setLinearVelocity(v);
+}
+
+void PhysBody3D::ResetVelocity()
+{
+	body->setLinearVelocity(btVector3(0,0,0));
+	body->setAngularVelocity(btVector3(0, 0, 0));
+}
+
+void PhysBody3D::ResetRotation()
+{
+	btTransform t = body->getWorldTransform();
+	t.setRotation(btQuaternion(0, 0, 0));
+	body->setWorldTransform(t);
+}

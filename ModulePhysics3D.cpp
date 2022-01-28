@@ -104,6 +104,18 @@ update_status ModulePhysics3D::PreUpdate(float dt)
 		}
 	}
 
+	// Sensors
+	unsigned int size = sensors.count();
+	for (unsigned int i = 0; i < size; i++) {
+		btGhostObject* obj;
+		sensors.at(i, obj);
+
+		btAlignedObjectArray<btCollisionObject*>& pairs = obj->getOverlappingPairs();
+		for (unsigned int j = 0; j < pairs.size(); j++) {
+			int x = 3;
+		}
+	}
+
 	return UPDATE_CONTINUE;
 }
 
@@ -215,7 +227,7 @@ PhysBody3D* ModulePhysics3D::AddBody(const Sphere& sphere, float mass)
 
 
 // ---------------------------------------------------------
-PhysBody3D* ModulePhysics3D::AddBody(const Cube& cube, float mass)
+PhysBody3D* ModulePhysics3D::AddBody(const Cube& cube, float mass, bool sensor)
 {
 	btCollisionShape* colShape = new btBoxShape(btVector3(cube.size.x*0.5f, cube.size.y*0.5f, cube.size.z*0.5f));
 	shapes.add(colShape);
@@ -223,8 +235,10 @@ PhysBody3D* ModulePhysics3D::AddBody(const Cube& cube, float mass)
 	btTransform startTransform;
 	startTransform.setFromOpenGLMatrix(&cube.transform);
 
+	PhysBody3D* pbody;
+
 	btVector3 localInertia(0, 0, 0);
-	if(mass != 0.f)
+	if (mass != 0.f)
 		colShape->calculateLocalInertia(mass, localInertia);
 
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
@@ -232,11 +246,53 @@ PhysBody3D* ModulePhysics3D::AddBody(const Cube& cube, float mass)
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 
 	btRigidBody* body = new btRigidBody(rbInfo);
-	PhysBody3D* pbody = new PhysBody3D(body);
+	pbody = new PhysBody3D(body);
 
 	body->setUserPointer(pbody);
 	world->addRigidBody(body);
 	bodies.add(pbody);
+
+	//if (!sensor) {
+
+	//	btVector3 localInertia(0, 0, 0);
+	//	if (mass != 0.f)
+	//		colShape->calculateLocalInertia(mass, localInertia);
+
+	//	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+	//	motions.add(myMotionState);
+	//	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+
+	//	btRigidBody* body = new btRigidBody(rbInfo);
+	//	pbody = new PhysBody3D(body);
+
+	//	body->setUserPointer(pbody);
+	//	world->addRigidBody(body);
+	//	bodies.add(pbody);
+	//}
+	//else {
+	//	btVector3 localInertia(0, 0, 0);
+	//	if (mass != 0.f)
+	//		colShape->calculateLocalInertia(mass, localInertia);
+
+	//	// Collision sensor
+	//	btGhostObject* ghostObj = new btGhostObject();
+	//	ghostObj->setCollisionShape(colShape);
+	//	ghostObj->setWorldTransform(startTransform);
+	//	ghostObj->setCollisionFlags(ghostObj->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	//	
+	//	btCollisionObject* cobj = ghostObj;
+	//	btRigidBody* robj = (btRigidBody*)cobj;
+	//	pbody = new PhysBody3D(robj);
+	//	ghostObj->setUserPointer(pbody);
+
+	//	world->addCollisionObject(ghostObj);
+	//	sensors.add(ghostObj);
+	//	// ---------------------
+	//}
+
+	if (sensor) {
+		body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	}
 
 	return pbody;
 }
