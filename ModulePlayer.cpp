@@ -102,17 +102,14 @@ bool ModulePlayer::Start()
 	vehicle->SetPos(0, 12, 10);
 	vehicle->type = PhysBody3D::Type::CAR;
 
-	Cube* c = new Cube(2, 1, 4);
-	bounds = App->physics->AddBody(*c, 1.0f, true);
+	Cube c(2, 1, 4);
+	bounds = App->physics->AddBody(c, 1.0f, true);
 	bounds->SetVelocity(btVector3(0, -250, 0));
 	bounds->type = PhysBody3D::Type::CAR;
 	bounds->collision_listeners.add(this);
 
 	// ZOOM
-	minZoom = { 5, -5 };
-	maxZoom = { 25, -25 };
-
-	zoom = maxZoom;
+	zoomRange = { 5, 25 };
 
 	zoomRatio = 0.0f;
 	zoomSpeed = 0.05f;
@@ -193,12 +190,15 @@ update_status ModulePlayer::Update(float dt)
 	zoomRatio -= App->input->GetMouseZ() * zoomSpeed;
 	CAP(zoomRatio);
 
-	zoom = { LERP(minZoom.x, maxZoom.x, zoomRatio), LERP(minZoom.y, maxZoom.y, zoomRatio) };
+	float zoom = LERP(zoomRange.x, zoomRange.y, zoomRatio);
 
 	//Reposition
 	vec3 carpos = vehicle->GetPosition();
+	btVector3 btcarfw = vehicle->vehicle->getForwardVector();
+	vec3 carfw(btcarfw.x(), btcarfw.y(), btcarfw.z());
+	carfw.y = -1.0f;
 
-	vec3 campos = carpos + vec3(0, zoom.x, zoom.y);
+	vec3 campos = carpos + (zoom * -carfw);
 
 	App->camera->Look(campos, carpos);
 
@@ -211,13 +211,12 @@ update_status ModulePlayer::Update(float dt)
 
 	//-- Bounds follow
 	bounds->SetPos(carpos.x, carpos.y, carpos.z);
+	bounds->SetRotation(vehicle->GetRotation());
 
 	// Set title
 	char title[80];
 	sprintf_s(title, "%.1f Km/h", vehicle->GetKmh());
 	App->window->SetTitle(title);
-
-	printf("lastpos(%.2f,%.2f,%.2f)\n", lastPos.x, lastPos.y, lastPos.z);
 
 	return UPDATE_CONTINUE;
 }
