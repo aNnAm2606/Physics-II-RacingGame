@@ -63,6 +63,15 @@ void ModuleSceneIntro::CreateMap()
 {
 	CreateObstacles();
 	CreateTrack();
+
+	// GOAL POINT
+	Cube* cube = new Cube(24, 2.3, 5);
+	cube->color.Set255(0, 0, 0);
+	PhysBody3D* pb3d = App->physics->AddBody(*cube, 0.0f);
+	pb3d->collision_listeners.add(this);
+	pb3d->type = PhysBody3D::Type::GOAL;
+
+	map_track.PushBack(cube);
 }
 
 void ModuleSceneIntro::CreateObstacles()

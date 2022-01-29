@@ -18,7 +18,8 @@ public:
 		CAR,
 		TRACK,
 		GRASS,
-		OBSTACLE
+		OBSTACLE,
+		GOAL
 	};
 
 	PhysBody3D(btRigidBody* body);
