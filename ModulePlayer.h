@@ -22,7 +22,7 @@ public:
 
 	void OnCollision(PhysBody3D* body1, PhysBody3D* body2);
 
-	vec2 zoomBounds;
+	vec2 zoomRange;
 
 	float zoomRatio;
 	float zoomSpeed;
