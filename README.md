@@ -36,7 +36,9 @@ Special features:
 To win the game you have to do 3 laps under 4 minutes.
 The game has obsticles, and different textures, such as road and grass. When on grass the car will move slower,
 as grass has more friction.
-
+Game has gravity, friction (as mentioned above) and impulse forces implemented.
+When the car falls off the track it returns to the last tiles it was on.
+Game includes platforms that boost cars speed.
  
 Some of the bugs encountered:
 
