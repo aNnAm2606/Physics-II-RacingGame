@@ -19,7 +19,9 @@ public:
 		TRACK,
 		GRASS,
 		OBSTACLE,
-		GOAL
+		GOAL,
+		ACTIVEGOAL,
+		BOOST
 	};
 
 	PhysBody3D(btRigidBody* body);

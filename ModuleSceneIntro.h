@@ -3,6 +3,7 @@
 #include "p2DynArray.h"
 #include "Globals.h"
 #include "Primitive.h"
+#include "p2Point.h"
 
 #define MAX_SNAKE 2
 
@@ -44,12 +45,28 @@ public:
 	PhysMotor3D* right_wheel;
 
 	p2DynArray<Cube*> map_track;
+
+	float timer;
+	float time;
+
+	int rounds;
+	int maxRounds;
+
+	float highScore;
+	
+	bool gameOver;
+	bool activeGoal;
+
+	char title[128];
 private:
 	void CreateMap();
 	void CreateObstacles();
 	void CreateTrack();
+	void CreateBoosts();
+
 	void AddTrack(vec3 position, vec3 size, float angle = 0.0f, vec3 axis = {0.0f,1.0f,0.0f});
 	void AddObstacle(vec3 position, vec3 size, float angle = 0.0f, vec3 axis = { 0.0f,1.0f,0.0f });
+	void AddBoost(vec3 position, vec3 size, float angle = 0.0f, vec3 axis = { 0.0f,1.0f,0.0f });
 
 	void TrackEditor();
 

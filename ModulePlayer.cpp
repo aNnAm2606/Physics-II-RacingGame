@@ -19,6 +19,7 @@ bool ModulePlayer::Start()
 	LOG("Loading player");
 
 	frictionCoefficient = 0.99f;
+	boostCoefficient = 1.01f;
 
 	VehicleInfo car;
 
@@ -140,14 +141,31 @@ void ModulePlayer::OnCollision(PhysBody3D* body1, PhysBody3D* body2)
 				v.setValue(v.x() * frictionCoefficient, v.y() * frictionCoefficient, v.z() * frictionCoefficient);
 				vehicle->SetVelocity(v);
 			}
+
+			if (body2->type == PhysBody3D::Type::BOOST) {
+				btVector3 v = vehicle->GetVelocity();
+				v.setValue(v.x() * boostCoefficient, v.y() * boostCoefficient, v.z() * boostCoefficient);
+				vehicle->SetVelocity(v);
+			}
 		}
 	}
+}
+
+void ModulePlayer::Stop()
+{
+	vehicle->ResetVelocity();
+}
+
+void ModulePlayer::ResetPosition()
+{
+	vehicle->SetPos(0, 0, 0);
 }
 
 // Update: draw background
 update_status ModulePlayer::Update(float dt)
 {
 	if (App->IsDebug()) return UPDATE_CONTINUE;
+	if (App->scene_intro->gameOver) return UPDATE_CONTINUE;
 
 	// Vehicle control
 	turn = acceleration = brake = 0.0f;
@@ -212,11 +230,6 @@ update_status ModulePlayer::Update(float dt)
 	//-- Bounds follow
 	bounds->SetPos(carpos.x, carpos.y, carpos.z);
 	bounds->SetRotation(vehicle->GetRotation());
-
-	// Set title
-	char title[80];
-	sprintf_s(title, "%.1f Km/h", vehicle->GetKmh());
-	App->window->SetTitle(title);
 
 	return UPDATE_CONTINUE;
 }

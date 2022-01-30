@@ -5,10 +5,12 @@ Application::Application()
 	window = new ModuleWindow(this);
 	input = new ModuleInput(this);
 	audio = new ModuleAudio(this, true);
-	scene_intro = new ModuleSceneIntro(this);
 	renderer3D = new ModuleRenderer3D(this);
+	textures = new Textures(this, true);
 	camera = new ModuleCamera3D(this);
 	physics = new ModulePhysics3D(this);
+
+	scene_intro = new ModuleSceneIntro(this);
 	player = new ModulePlayer(this);
 
 	// The order of calls is very important!
@@ -21,6 +23,7 @@ Application::Application()
 	AddModule(input);
 	AddModule(audio);
 	AddModule(physics);
+	AddModule(textures);
 	
 	// Scenes
 	AddModule(scene_intro);

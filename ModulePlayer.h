@@ -26,6 +26,9 @@ public:
 
 	float zoomRatio;
 	float zoomSpeed;
+
+	void Stop();
+	void ResetPosition();
 public:
 	vec3 lastPos;
 	btQuaternion lastRot;
@@ -37,4 +40,5 @@ public:
 	float brake;
 
 	float frictionCoefficient;
+	float boostCoefficient;
 };

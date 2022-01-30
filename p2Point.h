@@ -100,4 +100,6 @@ public:
 	}
 };
 
+typedef p2Point<int> iPoint;
+
 #endif // __P2POINT_H__

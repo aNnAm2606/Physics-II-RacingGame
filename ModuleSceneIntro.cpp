@@ -27,6 +27,18 @@ bool ModuleSceneIntro::Start()
 	// Create map
 	CreateMap();
 
+	timer = 0;
+	time = 240;
+
+	rounds = 0;
+	maxRounds = 3;
+
+	highScore = 0;
+
+	gameOver = false;
+
+	activeGoal = false;
+
 	return ret;
 }
 
@@ -46,23 +58,79 @@ update_status ModuleSceneIntro::Update(float dt)
 	for (int i = 0; i < size; i++) {
 		map_track[i]->Render();
 	}
+	
+	if (!gameOver) {
+		if (timer >= time) {
+			App->player->Stop();
+			timer = time;
+			gameOver = true;
+			sprintf_s(title, "Time: %.2f / %.2f Rounds: %d / %d [HighScore: %.2f] - You lost! Press space to start again.", timer, time, rounds, maxRounds, highScore);
+		}
+		else {
+			if (rounds < maxRounds) {
+				timer += dt;
+				sprintf_s(title, "Time: %.2f / %.2f Rounds: %d / %d [HighScore: %.2f]", timer, time, rounds, maxRounds, highScore);
+			}
+			else {
+				if (timer < highScore || highScore == 0) {
+					highScore = timer;
+					sprintf_s(title, "Time: %.2f / %.2f Rounds: %d / %d [HighScore: %.2f] - You won with a new HighScore! Press space to start again.", timer, time, rounds, maxRounds, highScore);
+				}
+				else {
+					sprintf_s(title, "Time: %.2f / %.2f Rounds: %d / %d [HighScore: %.2f] - You won! Press space to start again.", timer, time, rounds, maxRounds, highScore);
+				}
 
-	if (!App->IsDebug()) return UPDATE_CONTINUE;
+				App->player->Stop();
+				gameOver = true;
+			}
+		}
+	}
+	else {
+		if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN) {
+			gameOver = false;
+			timer = 0;
+			rounds = 0;
+			activeGoal = false;
+
+			App->player->ResetPosition();
+		}
+	}
+
+	App->window->SetTitle(title);
+
 
 	// TRACK-EDITOR
-	//TrackEditor();
+	/*if (!App->IsDebug()) return UPDATE_CONTINUE;
+	TrackEditor();*/
 
 	return UPDATE_CONTINUE;
 }
 
 void ModuleSceneIntro::OnCollision(PhysBody3D* body1, PhysBody3D* body2)
 {
+	if (body1->type == PhysBody3D::Type::GOAL) {
+		if (body2->type == PhysBody3D::Type::CAR) {
+			if (activeGoal) {
+				if (timer < time && rounds < maxRounds) {
+					activeGoal = false;
+					rounds++;
+				}
+			}
+		}
+	}
+
+	if (body1->type == PhysBody3D::Type::ACTIVEGOAL) {
+		if (body2->type == PhysBody3D::Type::CAR) {
+			activeGoal = true;
+		}
+	}
 }
 
 void ModuleSceneIntro::CreateMap()
 {
 	CreateObstacles();
 	CreateTrack();
+	CreateBoosts();
 
 	// GOAL POINT
 	Cube* cube = new Cube(24, 2.3, 5);
@@ -72,6 +140,13 @@ void ModuleSceneIntro::CreateMap()
 	pb3d->type = PhysBody3D::Type::GOAL;
 
 	map_track.PushBack(cube);
+
+	// ACTIVE GOAL POINT IN HALF OF THE TRACK TO PREVENT CHEATING
+	cube = new Cube(5, 2.3, 24);
+	cube->SetPos(-184.1, 0, 120.2);
+	pb3d = App->physics->AddBody(*cube, 0.0f);
+	pb3d->collision_listeners.add(this);
+	pb3d->type = PhysBody3D::Type::ACTIVEGOAL;
 }
 
 void ModuleSceneIntro::CreateObstacles()
@@ -125,6 +200,20 @@ void ModuleSceneIntro::CreateTrack()
 	AddTrack({-9.3, 0, -32.3}, { 9,2,34.4 }, -316.3);
 }
 
+void ModuleSceneIntro::CreateBoosts()
+{
+	AddBoost({ 8.60,0.10,60.30 }, { 3.20,2.00,5.20 }, 20.5);
+	AddBoost({ 12.80,0.10,182.60 }, { 3.20,2.00,5.20 }, 6.9);
+	AddBoost({ -47.80,0.10,285.51 }, { 3.20,2.00,5.20 }, -53.8);
+	AddBoost({ -127.80,0.10,257.31 }, { 3.20,2.00,5.20 }, -180.7);
+	AddBoost({ -127.50,0.10,197.80 }, { 3.20,2.00,5.20 }, -180.7);
+	AddBoost({ -158.30,0.10,121.10 }, { 3.20,2.00,5.20 }, -90.9);
+	AddBoost({ -283.21,0.10,80.60 }, { 3.20,2.00,5.20 }, -167.8);
+	AddBoost({ -209.80,0.10,7.40 }, { 3.20,2.00,5.20 }, -254.91);
+	AddBoost({ -109.90,0.10,-13.60 }, { 3.20,2.00,5.20 }, -229.2);
+	AddBoost({ -0.20,0.10,-10.00 }, { 3.90,2.00,21.00 }, 0);
+}
+
 void ModuleSceneIntro::AddTrack(vec3 position, vec3 size, float angle, vec3 axis)
 {
 	Cube* cube = new Cube(size.x, size.y, size.z);
@@ -157,6 +246,19 @@ void ModuleSceneIntro::AddObstacle(vec3 position, vec3 size, float angle, vec3 a
 	PhysBody3D* pb3d = App->physics->AddBody(*cube, 0.0f);
 	pb3d->collision_listeners.add(this);
 	pb3d->type = PhysBody3D::Type::OBSTACLE;
+
+	map_track.PushBack(cube);
+}
+
+void ModuleSceneIntro::AddBoost(vec3 position, vec3 size, float angle, vec3 axis)
+{
+	Cube* cube = new Cube(size.x, size.y, size.z);
+	cube->color.Set255(0, 0, 255);
+	cube->SetPos(position.x, position.y, position.z);
+	cube->SetRotation(angle, axis);
+	PhysBody3D* pb3d = App->physics->AddBody(*cube, 0.0f);
+	pb3d->collision_listeners.add(this);
+	pb3d->type = PhysBody3D::Type::BOOST;
 
 	map_track.PushBack(cube);
 }

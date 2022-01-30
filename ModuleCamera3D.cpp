@@ -40,6 +40,7 @@ update_status ModuleCamera3D::Update(float dt)
 {
 	// Implement a debug camera with keys and mouse
 	// Now we can make this movememnt frame rate independant!
+	if (!App->IsDebug()) return UPDATE_CONTINUE;
 
 	vec3 newPos(0,0,0);
 	float speed = 3.0f * dt;
