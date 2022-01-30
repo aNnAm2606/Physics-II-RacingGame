@@ -130,11 +130,13 @@ void ModulePlayer::OnCollision(PhysBody3D* body1, PhysBody3D* body2)
 {
 	if (body1->type == PhysBody3D::Type::CAR) {
 		if (body2->type != PhysBody3D::Type::CAR) {
-			vec3 b2p;
-			body2->GetPos(&b2p.x, &b2p.y, &b2p.z);
+			if (body2->type == PhysBody3D::Type::TRACK || body2->type == PhysBody3D::Type::GRASS) {
+				vec3 b2p;
+				body2->GetPos(&b2p.x, &b2p.y, &b2p.z);
 
-			lastPos = b2p;
-			lastRot = body2->GetRotation();
+				lastPos = b2p;
+				lastRot = body2->GetRotation();
+			}
 
 			if (body2->type == PhysBody3D::Type::GRASS) {
 				btVector3 v = vehicle->GetVelocity();
