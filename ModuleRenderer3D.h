@@ -19,8 +19,6 @@ public:
 
 	void OnResize(int width, int height);
 
-	void DrawImage(uint texture, int x, int y, int w, int h);
-
 public:
 
 	Light lights[MAX_LIGHTS];

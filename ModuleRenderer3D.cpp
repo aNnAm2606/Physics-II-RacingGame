@@ -1,14 +1,12 @@
 #include "Globals.h"
 #include "Application.h"
 #include "ModuleRenderer3D.h"
-#include "glew/include/GL/glew.h"
 #include "SDL\include\SDL_opengl.h"
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
 #pragma comment (lib, "glu32.lib")    /* link OpenGL Utility lib     */
 #pragma comment (lib, "opengl32.lib") /* link Microsoft OpenGL lib   */
-#pragma comment(lib, "glew/lib/Win32/glew32.lib")
 
 ModuleRenderer3D::ModuleRenderer3D(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -96,15 +94,6 @@ bool ModuleRenderer3D::Init()
 		lights[0].Active(true);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_COLOR_MATERIAL);
-
-		glewExperimental = GL_TRUE;
-		error = glewInit();
-
-		if (error != GLEW_OK) {
-			const unsigned char* errorMessage = glewGetErrorString(error);
-			LOG("Glew could not be initialized! Error: %s\n", errorMessage);
-			return false;
-		}
 	}
 
 	// Projection matrix for
@@ -160,42 +149,4 @@ void ModuleRenderer3D::OnResize(int width, int height)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-}
-
-void ModuleRenderer3D::DrawImage(uint texture, int x, int y, int w, int h)
-{
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0, SCREEN_WIDTH, 0.0, SCREEN_HEIGHT, -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-
-
-	glLoadIdentity();
-	glDisable(GL_LIGHTING);
-
-
-	glColor3f(1, 1, 1);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-
-	// Draw a textured quad
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex3f(0, 0, 0);
-	glTexCoord2f(0, 1); glVertex3f(0, 100, 0);
-	glTexCoord2f(1, 1); glVertex3f(100, 100, 0);
-	glTexCoord2f(1, 0); glVertex3f(100, 0, 0);
-	glEnd();
-
-
-	glDisable(GL_TEXTURE_2D);
-	glPopMatrix();
-
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-
-	glMatrixMode(GL_MODELVIEW);
 }
